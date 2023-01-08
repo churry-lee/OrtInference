@@ -29,7 +29,7 @@ YOLODetector::YOLODetector(const std::string& modelPath, const bool& isGPU = fal
 
 #ifdef _WIN32
     std::wstring w_modelPath = utils::charToWstring(modelPath.c_str());
-    session = Ort::Session(env, w_modelPath.c_str(), sessionOptions);
+    m_session = Ort::Session(m_env, w_modelPath.c_str(), m_sessionOptions);
 #else
 	m_session = Ort::Session(m_env, modelPath.c_str(), m_sessionOptions);
 #endif
@@ -82,6 +82,7 @@ void YOLODetector::getBestClassInfo(std::vector<float>::iterator it, const int& 
 void YOLODetector::preprocessing(cv::Mat &image, float*& blob, std::vector<int64_t>& inputTensorShape)
 {
     cv::Mat resizedImage, floatImage;
+	// 사용된 모델로 부터 Input Shape를 받아와 입력된 이미지의 크기를 input shape에 맞춰 조정
     cv::cvtColor(image, resizedImage, cv::COLOR_BGR2RGB);
     utils::letterbox(resizedImage, resizedImage, this->m_inputImageShape,
                      cv::Scalar(114, 114, 114), this->m_isDynamicInputShape,
@@ -90,16 +91,18 @@ void YOLODetector::preprocessing(cv::Mat &image, float*& blob, std::vector<int64
     inputTensorShape[2] = resizedImage.rows;
     inputTensorShape[3] = resizedImage.cols;
 
-    resizedImage.convertTo(floatImage, CV_32FC3, 1 / 255.0);
-    blob = new float[floatImage.cols * floatImage.rows * floatImage.channels()];
+    resizedImage.convertTo(floatImage, CV_32FC3, 1 / 255.0);                        // 정규화
+    blob = new float[floatImage.cols * floatImage.rows * floatImage.channels()];	// 이미지 크기만큼의 길이를 가지는 배열 생성
+	memset(blob, 0x00, sizeof(*blob));
     cv::Size floatImageSize {floatImage.cols, floatImage.rows};
 
-    // (height, width, channel) -> (channel, height, width)
-    std::vector<cv::Mat> chw(floatImage.channels());
-    for (int i = 0; i < floatImage.channels(); ++i)
-        chw[i] = cv::Mat(floatImageSize, CV_32FC1, blob + i * floatImageSize.width * floatImageSize.height);
+    /* (height, width, channel) -> (channel, height, width) */
+	cv::Mat chw[3];
+	memset(&chw, 0x00, sizeof(chw));
+	for (int i = 0; i < floatImage.channels(); ++i)
+		chw[i] = cv::Mat(floatImageSize, CV_32FC1, blob + i * floatImageSize.width * floatImageSize.height);
 
-    cv::split(floatImage, chw);
+	cv::split(floatImage, chw);
 }
 
 std::vector<Detection> YOLODetector::postprocessing(const cv::Size& resizedImageShape,

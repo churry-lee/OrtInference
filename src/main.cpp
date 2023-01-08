@@ -21,16 +21,37 @@ int main(int argc, char* argv[])
 	std::unique_ptr<YOLODetector> Detector = std::make_unique<YOLODetector>(modelPath, isGPU, inputSize);
 
 	const std::string imagePath = PROJECT_SRC_DIR + std::string("/images/bus.jpg");
-	cv::Mat image = cv::imread(imagePath);
-
+	cv::Mat image;
 	std::vector<Detection> result;
 
 	try
 	{
+#if 1
+		image = cv::imread(imagePath);
 		result = Detector->detect(image, confThreshold, iouThreshold);
+
 		utils::visualizeDetection(image, result, targetLabels);
 		cv::imshow("result", image);
 		cv::waitKey(0);
+#else
+		cv::VideoCapture cap{0};
+		if (!cap.isOpened())
+		{
+			printf("Can't open the camera");
+			return -1;
+		}
+
+		while (1)
+		{
+			cap >> image;
+			result = Detector->detect(image, confThreshold, iouThreshold);
+			utils::visualizeDetection(image, result, targetLabels);
+			cv::imshow("result", image);
+
+			if (cv::waitKey(1) == 27)
+				break;
+		}
+#endif
 	}
 	catch(const std::exception& e)
 	{
