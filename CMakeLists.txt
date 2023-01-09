@@ -12,7 +12,11 @@ set(CMAKE_VERBOSE_MAKEFILE True)
 set(EXECUTABLE_OUTPUT_PATH ${PROJECT_SOURCE_DIR}/bin)
 set(OUTPUT_ELF ${CMAKE_PROJECT_NAME}_v${CMAKE_PROJECT_VERSION_MAJOR}${CMAKE_PROJECT_VERSION_MINOR}_${CMAKE_BUILD_TYPE} )
 
-include(dependency.cmake)
+if(MSVC)
+    include(dependency_msvc.cmake)
+else()
+    include(dependency.cmake)
+endif(MSVC)
 
 set(SRC_FILES
         ./src/main.cpp
@@ -35,5 +39,8 @@ target_compile_definitions(${OUTPUT_ELF} PRIVATE
         PROJECT_SRC_DIR="${PROJECT_SOURCE_DIR}"
         )
 
-target_compile_options(${OUTPUT_ELF} PUBLIC -Wall -O3)
-
+if(MSVC)
+    target_compile_definitions(${OUTPUT_ELF} PUBLIC -W4)
+else()
+    target_compile_options(${OUTPUT_ELF} PUBLIC -Wall -O3)
+endif(MSVC)

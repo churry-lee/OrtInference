@@ -3,6 +3,8 @@
 
 int main(int argc, char* argv[])
 {
+	cv::utils::logging::setLogLevel(cv::utils::logging::LogLevel::LOG_LEVEL_SILENT);
+
 	const float confThreshold = 0.3f;
 	const float iouThreshold = 0.4f;
 
@@ -14,7 +16,7 @@ int main(int argc, char* argv[])
 
 	if (targetLabels.empty())
 	{
-		SPDLOG_ERROR("Empty labels file");
+		std::cerr << "Empty labels file" << std::endl;
 		return -1;
 	}
 
@@ -26,7 +28,7 @@ int main(int argc, char* argv[])
 
 	try
 	{
-#if 1
+#if 0
 		image = cv::imread(imagePath);
 		result = Detector->detect(image, confThreshold, iouThreshold);
 
@@ -55,7 +57,7 @@ int main(int argc, char* argv[])
 	}
 	catch(const std::exception& e)
 	{
-		SPDLOG_ERROR(e.what());
+		std::cerr << e.what() << std::endl;
 		return -1;
 	}
 

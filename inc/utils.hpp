@@ -3,8 +3,6 @@
 #include <fstream>
 #include <opencv2/opencv.hpp>
 
-#include <spdlog/spdlog.h>
-
 
 struct Detection
 {

@@ -17,7 +17,7 @@ std::vector<std::string> utils::loadLabels(const std::string& path)
 		infile.close();
 	}
 	else
-		SPDLOG_ERROR("ERROR: Failed to access label name path: " + path);
+		std::cerr << "ERROR: Failed to access label name path: " << path << std::endl;
 
 	return classNames;
 }

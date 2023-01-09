@@ -4,7 +4,7 @@
 #include <utility>
 #include <memory>
 
-#include <spdlog/spdlog.h>
+//#include <spdlog/spdlog.h>
 
 // opencv libraries
 #include <opencv2/core/core.hpp>
@@ -13,6 +13,7 @@
 #include <opencv2/video/video.hpp>
 #include <opencv2/videoio/videoio.hpp>
 #include <opencv2/dnn/dnn.hpp>
+#include <opencv2/core/utils/logger.hpp>
 
 // project utils
 #include "utils.hpp"

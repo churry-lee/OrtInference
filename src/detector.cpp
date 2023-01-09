@@ -7,7 +7,7 @@ YOLODetector::YOLODetector(const std::string& modelPath, const bool& isGPU = fal
 
     std::vector<std::string> availableProviders = Ort::GetAvailableProviders();
 	for (auto & provider : availableProviders)
-		SPDLOG_INFO("Available provider: " + provider);
+		std::cout << "Available provider: " << provider << std::endl;
 
 	// TODO: switch 문으로 바꿔서 추론 엔진 선택
     auto cudaAvailable = std::find(availableProviders.begin(), availableProviders.end(), "CUDAExecutionProvider");
@@ -15,19 +15,19 @@ YOLODetector::YOLODetector(const std::string& modelPath, const bool& isGPU = fal
 
     if (isGPU && (cudaAvailable == availableProviders.end()))
     {
-		SPDLOG_INFO("GPU is not supported by your ONNXRuntime build. Fallback to CPU. Inference device: CPU");
+		std::cout << "GPU is not supported by your ONNXRuntime build. Fallback to CPU. Inference device: CPU" << std::endl;
     }
     else if (isGPU && (cudaAvailable != availableProviders.end()))
     {
-		SPDLOG_INFO("Inference device: GPU");
+		std::cout << "Inference device: GPU" << std::endl;
         m_sessionOptions.AppendExecutionProvider_CUDA(cudaOption);
     }
     else
     {
-		SPDLOG_INFO("Inference device: CPU");
+		std::cout << "Inference device: CPU" << std::endl;
     }
 
-#ifdef _WIN32
+#ifdef _WINDOWS
     std::wstring w_modelPath = utils::charToWstring(modelPath.c_str());
     m_session = Ort::Session(m_env, w_modelPath.c_str(), m_sessionOptions);
 #else
@@ -50,14 +50,19 @@ YOLODetector::YOLODetector(const std::string& modelPath, const bool& isGPU = fal
 	int64_t height    = inputTensorShape[2];
 	int64_t width     = inputTensorShape[3];
 
-	SPDLOG_INFO("Input shape: ("
-				+ std::to_string(dimension) + "x"
-				+ std::to_string(channels)  + "x"
-				+ std::to_string(width)     + "x"
-				+ std::to_string(height)    + ")");
+	std::cout << "Input shape: ("
+			  << std::to_string(dimension) + "x"
+			  << std::to_string(channels)  + "x"
+			  << std::to_string(width)     + "x"
+			  << std::to_string(height)    + ")" << std::endl;
 
+#ifdef _WINDOWS
+	m_inputNames.push_back(m_session.GetInputName(0, allocator));
+	m_outputNames.push_back(m_session.GetOutputName(0, allocator));
+#else
     m_inputNames.push_back(m_session.GetInputNameAllocated(0, allocator));
     m_outputNames.push_back(m_session.GetOutputNameAllocated(0, allocator));
+#endif
 
     this->m_inputImageShape = cv::Size2f(inputSize);
 }
@@ -149,12 +154,18 @@ std::vector<Detection> YOLODetector::postprocessing(const cv::Size& resizedImage
             boxes.emplace_back(left, top, width, height);
             confs.emplace_back(confidence);
             classIds.emplace_back(classId);
+
+			std::cout << "ID: " << classId << ", ";
+			std::cout << "x: " << left << ", ";
+			std::cout << "y: " << top << ", ";
+			std::cout << "width: " << width << ", ";
+			std::cout << "height: " << height << std::endl;
         }
     }
 
     std::vector<int> indices;
     cv::dnn::NMSBoxes(boxes, confs, confThreshold, iouThreshold, indices);
-	SPDLOG_INFO("amount of NMS indices: " + std::to_string(indices.size()));
+//	SPDLOG_INFO("amount of NMS indices: " + std::to_string(indices.size()));
 
     std::vector<Detection> detections;
 
@@ -192,10 +203,15 @@ std::vector<Detection> YOLODetector::detect(cv::Mat &image, const float& confThr
             inputTensorShape.data(), inputTensorShape.size()
     ));
 
+#ifdef _WINDOWS
+	std::vector<Ort::Value> outputTensors = this->m_session.Run(Ort::RunOptions{ nullptr},
+		m_inputNames.data(), inputTensors.data(), 1,
+		m_outputNames.data(), 1);
+#else
     std::vector<Ort::Value> outputTensors = this->m_session.Run(Ort::RunOptions{ nullptr},
 		reinterpret_cast<const char* const*>(m_inputNames.data()), inputTensors.data(), 1,
 		reinterpret_cast<const char* const*>(m_outputNames.data()), 1);
-
+#endif
 	cv::Size resizedShape = cv::Size((int)inputTensorShape[3], (int)inputTensorShape[2]);
     std::vector<Detection> result = this->postprocessing(resizedShape,
                                                          image.size(),
