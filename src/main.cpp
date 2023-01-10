@@ -28,7 +28,7 @@ int main(int argc, char* argv[])
 
 	try
 	{
-#if 0
+#if 1
 		image = cv::imread(imagePath);
 		result = Detector->detect(image, confThreshold, iouThreshold);
 

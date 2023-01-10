@@ -19,4 +19,5 @@
 #include "utils.hpp"
 
 // onnxruntime inference library
-#include <onnxruntime_cxx_api.h>
+//#include <onnxruntime_cxx_api.h>
+#include <core/session/onnxruntime_cxx_api.h>
