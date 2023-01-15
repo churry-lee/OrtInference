@@ -154,12 +154,6 @@ std::vector<Detection> YOLODetector::postprocessing(const cv::Size& resizedImage
             boxes.emplace_back(left, top, width, height);
             confs.emplace_back(confidence);
             classIds.emplace_back(classId);
-
-			std::cout << "ID: " << classId << ", ";
-			std::cout << "x: " << left << ", ";
-			std::cout << "y: " << top << ", ";
-			std::cout << "width: " << width << ", ";
-			std::cout << "height: " << height << std::endl;
         }
     }
 
