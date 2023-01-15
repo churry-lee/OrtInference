@@ -56,7 +56,7 @@ YOLODetector::YOLODetector(const std::string& modelPath, const bool& isGPU = fal
 			  << std::to_string(width)     + "x"
 			  << std::to_string(height)    + ")" << std::endl;
 
-#ifdef _WINDOWS
+#if defined(_WINDOWS) || defined(IMX8QM)
 	m_inputNames.push_back(m_session.GetInputName(0, allocator));
 	m_outputNames.push_back(m_session.GetOutputName(0, allocator));
 #else
@@ -203,7 +203,7 @@ std::vector<Detection> YOLODetector::detect(cv::Mat &image, const float& confThr
             inputTensorShape.data(), inputTensorShape.size()
     ));
 
-#ifdef _WINDOWS
+#if defined(_WINDOWS) || defined(IMX8QM)
 	std::vector<Ort::Value> outputTensors = this->m_session.Run(Ort::RunOptions{ nullptr},
 		m_inputNames.data(), inputTensors.data(), 1,
 		m_outputNames.data(), 1);

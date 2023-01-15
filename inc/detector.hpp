@@ -25,7 +25,7 @@ private:
 
 
 	/* 이전 버전 type */
-#ifdef _WINDOWS
+#if defined(_WINDOWS) || defined(IMX8QM)
     std::vector<const char *> m_inputNames;
     std::vector<const char *> m_outputNames;
 #else

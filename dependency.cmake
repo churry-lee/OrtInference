@@ -12,7 +12,7 @@ set(ONNXRUNTIME_INCLUDE_DIR
 set(ONNXRUNTIME_LIBRARY_DIR /Users/iChurry/LocalLib/onnxruntime-v1.12.1-debug/lib)
 set(ONNXRUNTIME_LIBRARY onnxruntime)
 
-set(OpenCV_DIR /Users/iChurry/LocalLib/opencv-470-debug/lib/cmake/opencv4)
+set(OpenCV_DIR /Users/iChurry/LocalLib/opencv-v4.7.0-debug/lib/cmake/opencv4)
 find_package(OpenCV REQUIRED)
 set(OPENCV_INCLUDE_DIR ${OpenCV_INCLUDE_DIRS})
 set(OPENCV_LIBRARY opencv_core opencv_highgui opencv_imgproc opencv_video opencv_videoio opencv_dnn)
