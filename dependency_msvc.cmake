@@ -7,8 +7,7 @@
 #set(FMT_LIBRARY fmt)
 
 set(ONNXRUNTIME_INCLUDE_DIR
-		D:/local_lib/onnxruntime/include
-		D:/local_lib/onnxruntime/include/onnxruntime/core/session
+		D:/local_lib/onnxruntime/include/onnxruntime
 		)
 set(ONNXRUNTIME_LIBRARY_DIR D:/local_lib/onnxruntime/lib)
 set(ONNXRUNTIME_LIBRARY onnxruntime)
